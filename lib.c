@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "threadlib.h"
 
+int ThreadCount = 0;
 #define DEBUG
 /* uncomment when you are done! */
 
@@ -46,7 +47,7 @@ void switch_threads(tcb_t *newthread /* addr. of new TCB */,
 /** Data structures and functions to support thread control box */ 
 
 
-#include "stack.h"
+//#include "stack.h"
 
 
 /** end of data structures */
@@ -56,8 +57,9 @@ void switch_threads(tcb_t *newthread /* addr. of new TCB */,
 void switch_threads(tcb_t *newthread /* addr. of new TCB */, tcb_t *oldthread /* addr. of old TCB */) {
 
   /* This is basically a front end to the low-level assembly code to switch. */
- 
-	assert(!printf("Implement %s",__func__));
+  
+  //put non-preserved regs to stack
+  machine_switch(newthread, oldthread);
 
 }
 
@@ -94,12 +96,18 @@ void * malloc_stack()
    return ptr;
 }
 
-int create_thread(void (*ip)(void)) {
-	
-	long int  *stack; 
-	stack = malloc_stack();
-	if(!stack) return -1; /* no memory? */
+int create_thread(void (*ip)(void)) 
+{
+  long int  *stack; 
+  stack = malloc_stack();
+  if(!stack) return -1; /* no memory? */
 
+  TCB newThread = malloc(sizeof(tcb_t));
+  newThread -> sp = stack;
+  newThread -> state = 1;
+  newThread -> id = ++ThreadCount;
+  
+  
   /**
    * Stack layout: last slot should contain the return address and I should have some space 
    * for callee saved registers. Also, note that stack grows downwards. So need to start from the top. 
@@ -108,7 +116,7 @@ int create_thread(void (*ip)(void)) {
    * we want to run at this slot. 
    */
 
-	return 0;
+  return 0;
 }
 
 void yield(){
