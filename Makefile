@@ -12,4 +12,4 @@ main: lib.o switch.o main.o
 	$(CC) $(CFLAGS) -c $? -o $@ -m64 -static -g
 
 clean:
-	rm -f *.o *~
+	rm -f *.o *~ main

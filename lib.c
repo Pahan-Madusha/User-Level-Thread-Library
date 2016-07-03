@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "threadlib.h"
 
+int ThreadCount = 0;
 #define DEBUG
 /* uncomment when you are done! */
 
@@ -44,10 +45,26 @@ void switch_threads(tcb_t *newthread /* addr. of new TCB */,
 		    
 
 /** Data structures and functions to support thread control box */ 
+void stackPush(long int** stack, void* element, long int pos);
+long int stackPop(long int** stack);
+long int stackPeek(long int* stack, long int pos);
 
+void stackPush(long int** stack, void* element, long int pos)
+{
+  *(*stack + pos) = (long int)element;
+  *stack = *stack + 16;
+}
 
-#include "stack.h"
+int long stackPop(long int** stack)
+{
+  *stack = *stack - 16;
+  return (int long)(*(*stack + 16));
+}
 
+long int stackPeek(long int* stack, long int pos)
+{
+  return *(stack + pos);
+}
 
 /** end of data structures */
 
@@ -56,8 +73,9 @@ void switch_threads(tcb_t *newthread /* addr. of new TCB */,
 void switch_threads(tcb_t *newthread /* addr. of new TCB */, tcb_t *oldthread /* addr. of old TCB */) {
 
   /* This is basically a front end to the low-level assembly code to switch. */
- 
-	assert(!printf("Implement %s",__func__));
+  
+  //put non-preserved regs to stack
+  machine_switch(newthread, oldthread);
 
 }
 
@@ -80,7 +98,7 @@ void switch_threads(tcb_t *newthread /* addr. of new TCB */, tcb_t *oldthread /*
  * allocate some space for thread stack.
  * malloc does not give size aligned memory 
  * this is some hack to fix that.
- * You can use the code as is. 
+ * You can use the code as it is. 
  */
 void * malloc_stack(void); 
 
@@ -94,12 +112,23 @@ void * malloc_stack()
    return ptr;
 }
 
-int create_thread(void (*ip)(void)) {
-	
-	long int  *stack; 
-	stack = malloc_stack();
-	if(!stack) return -1; /* no memory? */
+int create_thread(void (*ip)(void)) 
+{
+  long int  *stack; 
+  stack = malloc_stack();
+  if(!stack) return -1; /* no memory? */
 
+  stackPush(&stack, (void*)5 , 0);
+  stackPush(&stack, (void*)20 , 0);
+  printf("%lu\n",stackPop(&stack));
+  printf("%lu\n",stackPop(&stack));
+
+  TCB newThread = malloc(sizeof(tcb_t));
+  newThread -> sp = stack;
+  newThread -> state = 1;
+  newThread -> id = ++ThreadCount;
+  
+  
   /**
    * Stack layout: last slot should contain the return address and I should have some space 
    * for callee saved registers. Also, note that stack grows downwards. So need to start from the top. 
@@ -108,7 +137,7 @@ int create_thread(void (*ip)(void)) {
    * we want to run at this slot. 
    */
 
-	return 0;
+  return 0;
 }
 
 void yield(){
