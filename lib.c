@@ -45,10 +45,26 @@ void switch_threads(tcb_t *newthread /* addr. of new TCB */,
 		    
 
 /** Data structures and functions to support thread control box */ 
+void stackPush(long int** stack, void* element, long int pos);
+long int stackPop(long int** stack);
+long int stackPeek(long int* stack, long int pos);
 
+void stackPush(long int** stack, void* element, long int pos)
+{
+  *(*stack + pos) = (long int)element;
+  *stack = *stack + 16;
+}
 
-//#include "stack.h"
+int long stackPop(long int** stack)
+{
+  *stack = *stack - 16;
+  return (int long)(*(*stack + 16));
+}
 
+long int stackPeek(long int* stack, long int pos)
+{
+  return *(stack + pos);
+}
 
 /** end of data structures */
 
@@ -82,7 +98,7 @@ void switch_threads(tcb_t *newthread /* addr. of new TCB */, tcb_t *oldthread /*
  * allocate some space for thread stack.
  * malloc does not give size aligned memory 
  * this is some hack to fix that.
- * You can use the code as is. 
+ * You can use the code as it is. 
  */
 void * malloc_stack(void); 
 
@@ -101,6 +117,11 @@ int create_thread(void (*ip)(void))
   long int  *stack; 
   stack = malloc_stack();
   if(!stack) return -1; /* no memory? */
+
+  stackPush(&stack, (void*)5 , 0);
+  stackPush(&stack, (void*)20 , 0);
+  printf("%lu\n",stackPop(&stack));
+  printf("%lu\n",stackPop(&stack));
 
   TCB newThread = malloc(sizeof(tcb_t));
   newThread -> sp = stack;
