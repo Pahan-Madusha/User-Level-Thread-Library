@@ -29,6 +29,9 @@ void stop_main(void);
 void delete_thread(void);
 
 
+/***/
+void switch_main(void* sp);
+
 
 
 #endif

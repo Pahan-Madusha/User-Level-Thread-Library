@@ -140,7 +140,12 @@ void stop_main(void)
   /* Main function was not created by our thread management system. 
    * So we have no record of it. So hijack it. 
    * Do not put it into our ready queue, switch to something else.*/
-  
+
+  if(threads == NULL)
+    return;
+
+  void* sp = (threads -> box) -> sp;
+  switch_main(sp);
 	
   assert(!printf("Implement %s",__func__));
 

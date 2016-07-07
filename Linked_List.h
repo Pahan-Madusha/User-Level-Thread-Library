@@ -32,16 +32,18 @@ int insert_to_list(TCB new_tcb, Thread_List list)
 {
   Thread_List current = list;
 
-  if(list == NULL)
-  {
-    list -> box = new_tcb;
-    return 1;
-  }
-  
   Thread_List tl = malloc(sizeof(thread_list_node));
  
   if(tl == NULL)
     return 0;
+
+  if(list == NULL)
+  {
+    tl -> box = new_tcb;
+    tl -> prev = NULL;
+    tl -> next = NULL;
+    return 1;
+  }
 
   while(current -> next != NULL)
   {
