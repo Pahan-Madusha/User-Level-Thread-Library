@@ -3,7 +3,6 @@
 #include <assert.h>
 #include "threadlib.h"
 
-int ThreadCount = 0;
 #define DEBUG
 /* uncomment when you are done! */
 
@@ -49,7 +48,9 @@ void switch_threads(tcb_t *newthread /* addr. of new TCB */,
 
 /** end of data structures */
 
-
+/*Thread storage*/
+Thread_List threads = NULL;
+int ThreadCount = 0;
 
 void switch_threads(tcb_t *newthread /* addr. of new TCB */, tcb_t *oldthread /* addr. of old TCB */) {
 
@@ -104,7 +105,8 @@ int create_thread(void (*ip)(void))
   newThread -> state = 1;
   newThread -> id = ++ThreadCount;
   
-  
+  insert_to_list(newThread, threads);
+
   /**
    * Stack layout: last slot should contain the return address and I should have some space 
    * for callee saved registers. Also, note that stack grows downwards. So need to start from the top. 
@@ -138,7 +140,7 @@ void stop_main(void)
   /* Main function was not created by our thread management system. 
    * So we have no record of it. So hijack it. 
    * Do not put it into our ready queue, switch to something else.*/
-
+  
 	
   assert(!printf("Implement %s",__func__));
 
