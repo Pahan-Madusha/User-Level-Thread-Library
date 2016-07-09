@@ -3,8 +3,8 @@ CC=gcc
 
 all: main
 
-main: lib.o switch.o switch_main.o main.o 
-	gcc main.o lib.o switch.o switch_main.o -o main -m64 -static
+main: lib.o switch.o stop_main.o main.o 
+	gcc main.o lib.o switch.o stop_main.o -o main -m64 -static
 
 %.o:%.c
 	$(CC) $(CFLAGS) -c $? -o $@ -m64 -static -g

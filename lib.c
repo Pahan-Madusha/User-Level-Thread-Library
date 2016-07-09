@@ -42,6 +42,7 @@ void machine_switch(tcb_t *newthread /* addr. of new TCB */,
 void switch_threads(tcb_t *newthread /* addr. of new TCB */, 
 		    tcb_t *oldthread /* addr. of old TCB */);
 		    
+void switch_main(void* sp, void* (*)(void));
 
 /** Data structures and functions to support thread control box */ 
 #include "Linked_List.h"
@@ -98,6 +99,7 @@ int create_thread(void (*ip)(void))
 {
   long int  *stack; 
   stack = malloc_stack();
+  stack = stack + STACK_SIZE - 16*10;
   if(!stack) return -1; /* no memory? */
 
   TCB newThread = malloc(sizeof(tcb_t));
@@ -145,7 +147,7 @@ void stop_main(void)
     return;
 
   void* sp = (threads -> box) -> sp;
-  switch_main(sp);
+  switch_main(sp, malloc_stack);
 	
   assert(!printf("Implement %s",__func__));
 
