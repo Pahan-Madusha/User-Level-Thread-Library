@@ -14,7 +14,7 @@ typedef thread_list_node* Thread_List;
 Thread_List createThreadList(void);
 
 /**/
-int insert_to_list(TCB new_tcb, Thread_List list);
+Thread_List insert_to_list(TCB new_tcb, Thread_List list);
 
 /**/
 int remove_from_list(int id, Thread_List list);
@@ -28,23 +28,29 @@ Thread_List createThreadList(void)
 }
 
 /************************************************/
-int insert_to_list(TCB new_tcb, Thread_List list)
+Thread_List insert_to_list(TCB new_tcb, Thread_List list)
 {
+  if(list == NULL)
+  {
+    list = malloc(sizeof(thread_list_node));
+    list -> box = new_tcb;
+    list -> prev = NULL;
+    list -> next = NULL;
+    //printf("%p\n",list);
+    return list;
+  }
+
+  /*not first thread*/
   Thread_List current = list;
 
   Thread_List tl = malloc(sizeof(thread_list_node));
  
   if(tl == NULL)
-    return 0;
-
-  if(list == NULL)
   {
-    tl -> box = new_tcb;
-    tl -> prev = NULL;
-    tl -> next = NULL;
-    return 1;
+    printf("Memory failed!\n");
+    return NULL;
   }
-
+    
   while(current -> next != NULL)
   {
     current = current -> next;
@@ -55,7 +61,7 @@ int insert_to_list(TCB new_tcb, Thread_List list)
   tl -> next = NULL;
   current -> next = tl;
 
-  return 1;
+  return list;
 }
 
 /***************************************************/

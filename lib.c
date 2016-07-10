@@ -42,7 +42,9 @@ void machine_switch(tcb_t *newthread /* addr. of new TCB */,
 void switch_threads(tcb_t *newthread /* addr. of new TCB */, 
 		    tcb_t *oldthread /* addr. of old TCB */);
 		    
-void switch_main(void* sp, void* (*)(void));
+void switch_main(void* sp, void (*)(void*));
+
+void start_threads(void* sp);
 
 /** Data structures and functions to support thread control box */ 
 #include "Linked_List.h"
@@ -99,16 +101,18 @@ int create_thread(void (*ip)(void))
 {
   long int  *stack; 
   stack = malloc_stack();
-  stack = stack + STACK_SIZE - 16*10;
   if(!stack) return -1; /* no memory? */
+
+  stack = stack + STACK_SIZE - 16*20; //start from top and leave some space
+  (*stack) = (long int)ip;
 
   TCB newThread = malloc(sizeof(tcb_t));
   newThread -> sp = stack;
   newThread -> state = 1;
   newThread -> id = ++ThreadCount;
-  
-  insert_to_list(newThread, threads);
 
+  threads = insert_to_list(newThread, threads);
+  
   /**
    * Stack layout: last slot should contain the return address and I should have some space 
    * for callee saved registers. Also, note that stack grows downwards. So need to start from the top. 
@@ -144,11 +148,16 @@ void stop_main(void)
    * Do not put it into our ready queue, switch to something else.*/
 
   if(threads == NULL)
+  {
+    printf("threads is NULL\n\n");
     return;
-
+  }
   void* sp = (threads -> box) -> sp;
-  switch_main(sp, malloc_stack);
+  printf("%p\n",sp);
+  switch_main(sp, start_threads);
 	
-  assert(!printf("Implement %s",__func__));
+  assert(!printf("*****Implement %s",__func__));
 
 }
+
+
