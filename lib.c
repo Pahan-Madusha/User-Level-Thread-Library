@@ -58,8 +58,8 @@ Thread_List current_thread = NULL;
 void switch_threads(tcb_t *newthread /* addr. of new TCB */, tcb_t *oldthread /* addr. of old TCB */) {
 
   /* This is basically a front end to the low-level assembly code to switch. */
-  
-  //printf("current :  %d\n",oldthread -> id);
+  newthread -> state = 2;
+  oldthread -> state = 1;
   //put non-preserved regs to stack
   machine_switch(newthread, oldthread);
 
@@ -106,7 +106,7 @@ int create_thread(void (*ip)(void))
 
   stack = stack + STACK_SIZE - 16*FRAME_REGS; //start from top and leave some space
   (*stack) = (long int)ip;
-  //printf("create :  %p", stack);
+
   TCB newThread = malloc(sizeof(tcb_t));
   newThread -> sp = stack;
   newThread -> state = 1;
@@ -121,7 +121,7 @@ int create_thread(void (*ip)(void))
    * most element in the stack should be return ip. So we create a stack with the address of the function 
    * we want to run at this slot. 
    */
-  //print_the_threads(threads);
+  
   return 0;
 }
 
@@ -141,8 +141,6 @@ void yield(){
   }
   current_thread = newThread;
 
-  //printf("old %d  sp %p\n", (oldthread -> box) -> id, oldthread -> box);
-  //printf("new %d  sp %p\n", (newThread -> box) -> id, newThread -> box);
   switch_threads(newThread -> box, oldthread -> box);
   
 }
@@ -153,9 +151,6 @@ void delete_thread(void){
   /* When a user-level thread calls this you should not 
    * let it run any more but let others run
    * make sure to exit when all user-level threads are dead */ 
-  
-	   
-  assert(!printf("Implement %s",__func__));
 }
 
 
@@ -172,10 +167,9 @@ void stop_main(void)
   }
   void* sp = (threads -> box) -> sp;
 
+  threads -> box -> state = 2;
   switch_main(sp, start_threads);
 	
-  assert(!printf("*****Implement %s",__func__));
-
 }
 
 

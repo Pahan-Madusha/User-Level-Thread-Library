@@ -17,7 +17,7 @@ Thread_List createThreadList(void);
 Thread_List insert_to_list(TCB new_tcb, Thread_List list);
 
 /**/
-int remove_from_list(int id, Thread_List list);
+Thread_List remove_from_list(int id, Thread_List list);
 
 
 /************************/
@@ -65,7 +65,7 @@ Thread_List insert_to_list(TCB new_tcb, Thread_List list)
 }
 
 /***************************************************/
-int remove_from_list(int id, Thread_List list)
+Thread_List remove_from_list(int id, Thread_List list)
 {
   Thread_List current = list;
   
@@ -76,17 +76,18 @@ int remove_from_list(int id, Thread_List list)
       if( current -> prev == NULL)
       {
         current -> box = NULL; 
-        return 1; 
+        return NULL; 
       }  
       (current -> prev) -> next = current -> next;
       free(current);
-      return 1;
+      return list;
     }
   }
-
-  return 0;
+  
+  return NULL;
 }
 
+/****************************************/
 void print_the_threads(Thread_List list)
 {
   while(list != NULL)
