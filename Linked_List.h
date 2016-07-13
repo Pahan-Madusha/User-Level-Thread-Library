@@ -87,6 +87,15 @@ int remove_from_list(int id, Thread_List list)
   return 0;
 }
 
+void print_the_threads(Thread_List list)
+{
+  while(list != NULL)
+  {
+    printf("id = %d,  sp = %p\n",list -> box -> id, list -> box -> sp);
+    list = list -> next;
+  }
+}
+
 
 
 

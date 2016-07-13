@@ -23,7 +23,6 @@ struct tcb {
 	      * 2 - running state
 	      * 3 - blocked state
 	      */
-  /* you will need others stuff */ 
 };
 
 typedef struct tcb tcb_t;
@@ -54,11 +53,13 @@ void start_threads(void* sp);
 /*Thread storage*/
 Thread_List threads = NULL;
 int ThreadCount = 0;
+Thread_List current_thread = NULL;
 
 void switch_threads(tcb_t *newthread /* addr. of new TCB */, tcb_t *oldthread /* addr. of old TCB */) {
 
   /* This is basically a front end to the low-level assembly code to switch. */
   
+  //printf("current :  %d\n",oldthread -> id);
   //put non-preserved regs to stack
   machine_switch(newthread, oldthread);
 
@@ -103,16 +104,16 @@ int create_thread(void (*ip)(void))
   stack = malloc_stack();
   if(!stack) return -1; /* no memory? */
 
-  stack = stack + STACK_SIZE - 16*20; //start from top and leave some space
+  stack = stack + STACK_SIZE - 16*FRAME_REGS; //start from top and leave some space
   (*stack) = (long int)ip;
-
+  //printf("create :  %p", stack);
   TCB newThread = malloc(sizeof(tcb_t));
   newThread -> sp = stack;
   newThread -> state = 1;
   newThread -> id = ++ThreadCount;
 
   threads = insert_to_list(newThread, threads);
-  
+  current_thread = threads;
   /**
    * Stack layout: last slot should contain the return address and I should have some space 
    * for callee saved registers. Also, note that stack grows downwards. So need to start from the top. 
@@ -120,13 +121,30 @@ int create_thread(void (*ip)(void))
    * most element in the stack should be return ip. So we create a stack with the address of the function 
    * we want to run at this slot. 
    */
-
+  //print_the_threads(threads);
   return 0;
 }
 
 void yield(){
   /* thread wants to give up the CPUjust call the scheduler to pick the next thread. */
+  Thread_List oldthread = current_thread;
 
+  if(current_thread == NULL)
+  {
+    oldthread = threads;
+  }
+  Thread_List newThread = oldthread -> next;
+  
+  if(newThread == NULL)
+  {
+    newThread = threads; // begining
+  }
+  current_thread = newThread;
+
+  //printf("old %d  sp %p\n", (oldthread -> box) -> id, oldthread -> box);
+  //printf("new %d  sp %p\n", (newThread -> box) -> id, newThread -> box);
+  switch_threads(newThread -> box, oldthread -> box);
+  
 }
 
 
@@ -153,7 +171,7 @@ void stop_main(void)
     return;
   }
   void* sp = (threads -> box) -> sp;
-  printf("%p\n",sp);
+
   switch_main(sp, start_threads);
 	
   assert(!printf("*****Implement %s",__func__));
