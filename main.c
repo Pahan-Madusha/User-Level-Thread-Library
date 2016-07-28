@@ -6,7 +6,7 @@
 			   * undefine this (just comment)
 			   */
 
-//#undef TESTING
+#undef TESTING
 			   
 #ifdef TESTING 
 /* few threads to play around with

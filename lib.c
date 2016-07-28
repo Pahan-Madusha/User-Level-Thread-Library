@@ -106,6 +106,9 @@ int create_thread(void (*ip)(void))
 
   stack = stack + STACK_SIZE - 16*FRAME_REGS; //start from top and leave some space
   (*stack) = (long int)ip;
+  
+  if(ThreadCount != 0)
+  	stack = stack - 7;
 
   TCB newThread = malloc(sizeof(tcb_t));
   newThread -> sp = stack;
@@ -151,6 +154,12 @@ void delete_thread(void){
   /* When a user-level thread calls this you should not 
    * let it run any more but let others run
    * make sure to exit when all user-level threads are dead */ 
+  
+  if(threads -> next == NULL)
+	exit(0);
+  remove_from_list(current_thread -> box -> id, &threads);
+
+  yield();
 }
 
 
