@@ -13,10 +13,10 @@ typedef thread_list_node* Thread_List;
 /*create a new list*/
 Thread_List createThreadList(void);
 
-/**/
+/*insert a thread to the thread list*/
 Thread_List insert_to_list(TCB new_tcb, Thread_List list);
 
-/**/
+/*remove a thread from list*/
 void remove_from_list(int id, Thread_List* list);
 
 

@@ -75,6 +75,7 @@ void switch_threads(tcb_t *newthread /* addr. of new TCB */, tcb_t *oldthread /*
  */
 
 #define STACK_SIZE (sizeof(void *) * 1024)
+#define WORDS STACK_SIZE/16
 #define FRAME_REGS 48 // is this correct for x86_64?
 
 #include <stdlib.h>
@@ -102,21 +103,25 @@ int create_thread(void (*ip)(void))
 {
   long int  *stack; 
   stack = malloc_stack();
-  if(!stack) return -1; /* no memory? */
+  if(!stack)
+  {
+    printf("NO memory!\n");
+    return -1; /* no memory? */
+  }
 
-  stack = stack + STACK_SIZE; //start from top and leave some space
+  stack = stack + WORDS; //start from top
   (*stack) = (long int)ip;
   
   if(ThreadCount != 0)
-  	stack = stack - 7;
+  	stack = stack - 7;  // leave some space
 
   TCB newThread = malloc(sizeof(tcb_t));
   newThread -> sp = stack;
   newThread -> state = 1;
   newThread -> id = ++ThreadCount;
 
-  threads = insert_to_list(newThread, threads);
-  current_thread = threads;
+  threads = insert_to_list(newThread, threads); // add to thread list
+  current_thread = threads; // ready to start from first thread
   /**
    * Stack layout: last slot should contain the return address and I should have some space 
    * for callee saved registers. Also, note that stack grows downwards. So need to start from the top. 
@@ -131,13 +136,14 @@ void yield(){
   /* thread wants to give up the CPUjust call the scheduler to pick the next thread. */
   Thread_List oldthread = current_thread;
 
-  if(current_thread == NULL)
+  if(current_thread == NULL) // current thread deleted?
   {
     oldthread = threads;
   }
-  Thread_List newThread = oldthread -> next;
+
+  Thread_List newThread = oldthread -> next; // switch next thread on list
   
-  if(newThread == NULL)
+  if(newThread == NULL) // if end of list
   {
     newThread = threads; // begining
   }
@@ -147,14 +153,15 @@ void yield(){
   
 }
 
-
-void delete_thread(void){
+/**********************/
+void delete_thread(void)
+{
 
   /* When a user-level thread calls this you should not 
    * let it run any more but let others run
    * make sure to exit when all user-level threads are dead */ 
   
-  if(threads -> next == NULL)
+  if(threads -> next == NULL) // all done
 	exit(0);
   remove_from_list(current_thread -> box -> id, &threads);
 

@@ -49,7 +49,7 @@ int main(void)
 
 int count = 1;
 
-#define MAX 10 /* how may threads to create */
+#define MAX 25 /* how many threads to create */
 
 #define COUNT(x) x*100000
 
@@ -75,12 +75,12 @@ void simple_thread(void)
   }
 
   delete_thread(); /* die */
+  printf("Make NO_THREADS <= MAX\n");
   assert(0); /* I should not be running */
 }
 
-#define NO_THREADS 9 /* FixMe: this should work for any number 
-		      * of threads
-		      */
+#define NO_THREADS 25
+/* NO_THREADS <= MAX */
 
 int main(void)
 { 
