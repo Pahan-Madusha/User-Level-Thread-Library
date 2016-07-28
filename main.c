@@ -2,11 +2,6 @@
 #include <assert.h>
 #include "threadlib.h"
 
-#define TESTING         1 /* once you undestand the code 
-			   * undefine this (just comment)
-			   */
-
-#undef TESTING
 			   
 #ifdef TESTING 
 /* few threads to play around with
@@ -83,7 +78,7 @@ void simple_thread(void)
   assert(0); /* I should not be running */
 }
 
-#define NO_THREADS 10 /* FixMe: this should work for any number 
+#define NO_THREADS 9 /* FixMe: this should work for any number 
 		      * of threads
 		      */
 
@@ -92,8 +87,9 @@ int main(void)
 
   int i; 
   for(i=0; i < NO_THREADS; i++) 
+  {
     assert(!create_thread(simple_thread));
-
+  }
   stop_main(); /* give up the CPU */
   assert(0); /* you should not come back */
 

@@ -104,7 +104,7 @@ int create_thread(void (*ip)(void))
   stack = malloc_stack();
   if(!stack) return -1; /* no memory? */
 
-  stack = stack + STACK_SIZE - 16*FRAME_REGS; //start from top and leave some space
+  stack = stack + STACK_SIZE; //start from top and leave some space
   (*stack) = (long int)ip;
   
   if(ThreadCount != 0)
@@ -124,7 +124,6 @@ int create_thread(void (*ip)(void))
    * most element in the stack should be return ip. So we create a stack with the address of the function 
    * we want to run at this slot. 
    */
-  
   return 0;
 }
 
